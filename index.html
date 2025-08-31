@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz sobre Max Weber</title>
+  <style>
+    :root{
+      --bg:#f5f7fa;
+      --fg:#333;
+      --card:#ffffff;
+      --muted:#2c3e50;
+      --btn:#2f6bb2;
+      --btn-hover:#3d82d4;
+      --opt:#ecf0f1;
+      --opt-hover:#d6eaf8;
+      --ok:#1b9e3e;
+      --err:#c0392b;
+      --shadow: 0 6px 16px rgba(0,0,0,.08);
+      --radius:14px;
+    }
+    .dark-mode{
+      --bg:#121417;
+      --fg:#e6e6e6;
+      --card:#1b2026;
+      --muted:#e6e6e6;
+      --btn:#3b82f6;
+      --btn-hover:#5aa0ff;
+      --opt:#24303b;
+      --opt-hover:#2e3a46;
+      --ok:#2ecc71;
+      --err:#e74c3c;
+      --shadow: 0 8px 20px rgba(0,0,0,.35);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0; padding:24px;
+      background:var(--bg); color:var(--fg);
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      transition: background .25s, color .25s;
+    }
+    .container{
+      max-width:900px; margin:0 auto;
+      background:var(--card); padding:28px;
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    h1{ margin:8px 0 16px; color:var(--muted); font-size:28px; }
+    h2{ margin:16px 0 10px; color:var(--muted); font-size:22px; }
+
+    .topbar{
+      display:flex; gap:12px; justify-content:space-between; align-items:center; margin-bottom:16px;
+    }
+    .btn{
+      border:none; cursor:pointer; border-radius:10px; padding:10px 16px;
+      background:var(--btn); color:#fff; font-weight:600; transition:transform .05s, background .2s;
+    }
+    .btn:hover{ background:var(--btn-hover) }
+    .btn:active{ transform: translateY(1px) }
+    .btn.secondary{ background:transparent; color:var(--muted); border:1px solid rgba(0,0,0,.08) }
+    .dark-mode .btn.secondary{ border-color: rgba(255,255,255,.15) }
+
+    .lead{ opacity:.9; line-height:1.6 }
+
+    #quiz-card{
+      border:1px solid rgba(0,0,0,.06);
+      border-radius:var(--radius);
+      padding:18px;
+      background:var(--card);
+    }
+    .dark-mode #quiz-card{ border-color: rgba(255,255,255,.08) }
+
+    #progress{ font-size:14px; opacity:.8; margin-bottom:6px }
+    #question{ margin:6px 0 14px; }
+
+    #options{ display:grid; gap:10px }
+    #options button{
+      width:100%; text-align:left; background:var(--opt); color:var(--fg);
+      padding:12px 14px; border:none; border-radius:10px; cursor:pointer;
+      transition: background .2s, opacity .2s;
+    }
+    #options button:hover{ background:var(--opt-hover) }
+    #options button:disabled{ opacity:.65; cursor:not-allowed }
+
+    #feedback{ margin-top:12px; font-weight:600 }
+    .ok{ color:var(--ok) }
+    .err{ color:var(--err) }
+
+    .hidden{ display:none }
+
+    #result .badge{
+      display:inline-block; padding:6px 10px; border-radius:999px;
+      background:var(--opt); margin:6px 0 12px;
+    }
+    .just-list p{ margin:.5rem 0; line-height:1.5 }
+  </style>
+</head>
+<body>
+
+    <div class="topbar">
+    <div style="display:flex; gap:10px">>
+        <button class="btn" onclick="window.open('MAX-WEBER.pdf', '_blank')">SLIDE sobre Max Weber</button>
+    </div>
+    </div>
+
+  <div class="container">
+    <div class="topbar">
+      <h1>Quiz sobre Max Weber</h1>
+      <button id="themeToggle" class="btn secondary" aria-pressed="false">Tema: Claro</button>
+    </div>
+
+    <div id="intro">
+      <h2>Quem foi Max Weber?</h2>
+      <p class="lead">
+        <strong>Max Weber</strong> (1864–1920) é um dos fundadores da sociologia moderna.
+        Seus conceitos de ação social, racionalização, tipo ideal, estratificação (classe, status e poder) e burocracia
+        são chaves para entender o mundo contemporâneo.
+      </p>
+      <button class="btn" onclick="startQuiz()">Iniciar Quiz</button>
+    </div>
+
+    <div id="quiz" class="hidden">
+      <div id="quiz-card">
+        <div id="progress"></div>
+        <h2 id="question"></h2>
+        <div id="options"></div>
+        <div id="feedback"></div>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:12px">
+        <button id="nextBtn" class="btn hidden" onclick="nextQuestion()">Próxima</button>
+        <button id="restartMid" class="btn secondary hidden" onclick="restartQuiz()">Reiniciar</button>
+      </div>
+    </div>
+
+    <div id="result" class="hidden">
+      <h2>Resultado Final</h2>
+      <div id="score" class="badge"></div>
+      <div id="justifications" class="just-list"></div>
+      <button class="btn" onclick="restartQuiz()">Reiniciar Quiz</button>
+    </div>
+  </div>
+
+  <script>
+    // ===== Tema escuro corrigido (aplica em todo o app + texto do botão) =====
+    const themeToggle = document.getElementById('themeToggle');
+    function setThemeButtonLabel(){
+      const dark = document.body.classList.contains('dark-mode');
+      themeToggle.textContent = dark ? 'Tema: Escuro' : 'Tema: Claro';
+      themeToggle.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    }
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      setThemeButtonLabel();
+    });
+    setThemeButtonLabel();
+
+    // ===== Banco de questões (15) com justificativas detalhadas =====
+    const questions = [
+      {
+        question: "Segundo Weber, o que define a 'ação social'?",
+        options: [
+          "Qualquer ação humana, independentemente de sentido",
+          "Ação orientada pelo significado atribuído às ações dos outros",
+          "Um comportamento instintivo",
+          "Uma prática econômica exclusiva",
+          "Apenas ações coletivas"
+        ],
+        answer: 1,
+        justification:
+          "Para Weber, ação social é aquela cuja orientação de sentido considera o comportamento de outras pessoas. "
+          + "Trata-se de compreender o sentido subjetivo a partir do método interpretativo (verstehen), "
+          + "pois é esse significado que conecta a ação individual às estruturas sociais mais amplas."
+      },
+      {
+        question: "Qual destes NÃO é um tipo de ação social identificado por Weber?",
+        options: [
+          "Racional com relação a fins",
+          "Racional com relação a valores",
+          "Tradicional",
+          "Afetiva",
+          "Mercadológica"
+        ],
+        answer: 4,
+        justification:
+          "Weber distingue quatro tipos: racional com relação a fins (cálculo de meios/efeitos), "
+          + "racional com relação a valores (fidelidade a princípios), tradicional (hábito/costume) e afetiva (emoções). "
+          + "‘Mercadológica’ não é uma categoria tipológica, ainda que a lógica de mercado possa influenciar ações racionais quanto a fins."
+      },
+      {
+        question: "O que é o 'tipo ideal'?",
+        options: [
+          "Um modelo perfeito da realidade",
+          "Uma ferramenta analítica que exagera características para análise",
+          "Uma utopia social",
+          "Um sistema político justo",
+          "Um conceito apenas econômico"
+        ],
+        answer: 1,
+        justification:
+          "O tipo ideal é um constructo heurístico: acentua traços de um fenômeno para comparações sistemáticas. "
+          + "Não é descrição fiel nem receita normativa; serve para ordenar a realidade empírica e destacar conexões causais."
+      },
+      {
+        question: "Qual é a diferença da estratificação social em Weber e Marx?",
+        options: [
+          "Weber considerava apenas o fator econômico",
+          "Weber incluía classe, status e poder, não apenas economia",
+          "Marx não estudava estratificação",
+          "Weber via apenas diferenças culturais",
+          "Marx priorizava status social"
+        ],
+        answer: 1,
+        justification:
+          "Para Weber, a ordem social se estrutura por classe (situação de mercado), status (honra/estilo de vida) e poder/partido (capacidade de impor a vontade). "
+          + "Isso amplia a leitura econômica marxiana, sem negá-la, incorporando dimensões simbólicas e político-organizativas."
+      },
+      {
+        question: "O que caracteriza a burocracia racional para Weber?",
+        options: [
+          "Flexibilidade total e ausência de regras",
+          "Hierarquia clara, regras impessoais e divisão do trabalho",
+          "Base em laços familiares",
+          "Ausência de hierarquia",
+          "Decisões baseadas em carisma"
+        ],
+        answer: 1,
+        justification:
+          "A burocracia moderna se organiza por cargos definidos, competência técnica, hierarquia, expediente e regras formais. "
+          + "Essa forma é altamente eficiente pela previsibilidade e calculabilidade, mas tende à rigidez."
+      },
+      {
+        question: "O que significa a 'gaiola de ferro'?",
+        options: [
+          "A opressão religiosa",
+          "O aprisionamento do indivíduo pela racionalização e burocracia",
+          "O domínio militar",
+          "Um conceito marxista",
+          "Um sistema econômico fechado"
+        ],
+        answer: 1,
+        justification:
+          "A ‘gaiola de ferro’ é a metáfora de Weber para a expansão de uma racionalidade formal que subordina a vida a regras, rotinas e cálculos. "
+          + "Ela aumenta a eficiência, mas pode reduzir autonomia, sentido e liberdade substantiva."
+      },
+      {
+        question: "Qual é a relação entre religião e economia segundo Weber?",
+        options: [
+          "Nenhuma relação significativa",
+          "A religião pode moldar valores que afetam a economia",
+          "A religião sempre impede o capitalismo",
+          "A economia determina totalmente a religião",
+          "São áreas isoladas"
+        ],
+        answer: 1,
+        justification:
+          "Weber analisou a ética protestante (ascetismo intramundano) como um ethos disciplinado que favoreceu trabalho metódico e reinvestimento. "
+          + "A relação é probabilística e histórica, não determinista: valores religiosos podem orientar condutas econômicas."
+      },
+      {
+        question: "Para Weber, o que é poder?",
+        options: [
+          "Apenas influência política",
+          "Capacidade de impor a própria vontade, mesmo contra resistência",
+          "Domínio militar",
+          "Força econômica",
+          "Apenas liderança carismática"
+        ],
+        answer: 1,
+        justification:
+          "Poder (Macht) é a chance de impor a vontade em uma relação social, ainda diante de oposição. "
+          + "Difere de dominação (Herrschaft), que supõe legitimidade reconhecida pelos dominados."
+      },
+      {
+        question: "O que significa racionalização na sociedade moderna?",
+        options: [
+          "Retorno às tradições",
+          "Substituição de valores e crenças por cálculo e eficiência",
+          "Aumento da religiosidade",
+          "Melhora nas emoções humanas",
+          "Liberdade total"
+        ],
+        answer: 1,
+        justification:
+          "Racionalização indica a generalização de critérios formais (cálculo, previsão, técnica) em domínios como direito, economia e administração. "
+          + "Esse processo se associa ao ‘desencantamento do mundo’ e à burocratização."
+      },
+      {
+        question: "Qual o papel do 'status' na estratificação social?",
+        options: [
+          "Determina apenas o poder político",
+          "Baseia-se em prestígio social e estilo de vida",
+          "É equivalente à classe econômica",
+          "Não tem importância",
+          "É determinado apenas pela religião"
+        ],
+        answer: 1,
+        justification:
+          "Status refere-se à honra social e aos estilos de vida reconhecidos. "
+          + "Grupos de status praticam ‘fechamento social’ (barreiras de acesso), o que afeta oportunidades e interação com classes e partidos."
+      },
+      {
+        question: "Qual é a crítica de Weber à burocracia?",
+        options: [
+          "Ela é totalmente ineficiente",
+          "Ela pode limitar a liberdade individual",
+          "Ela favorece o carisma",
+          "Ela elimina a racionalidade",
+          "Ela não existe nas sociedades modernas"
+        ],
+        answer: 1,
+        justification:
+          "Embora eficiente, a burocracia traz efeitos colaterais: ‘deslocamento de fins’ (meios viram fins), rotinização excessiva e dependência de especialistas. "
+          + "Isso pode reduzir a autonomia e a criatividade dos indivíduos."
+      },
+      {
+        question: "O que é 'dominação carismática'?",
+        options: [
+          "Domínio baseado em tradição",
+          "Autoridade derivada do carisma pessoal do líder",
+          "Controle militar",
+          "Controle burocrático",
+          "Liderança herdada"
+        ],
+        answer: 1,
+        justification:
+          "A dominação carismática surge de qualidades extraordinárias atribuídas ao líder, comuns em contextos de crise. "
+          + "Ela é instável e tende à ‘rotinização do carisma’, convertendo-se em formas tradicionais ou legais-racionais."
+      },
+      {
+        question: "Segundo Weber, o que diferencia 'classe' de 'poder'?",
+        options: [
+          "Classe é cultural, poder é econômico",
+          "Classe é econômica, poder é a capacidade de impor a vontade",
+          "São a mesma coisa",
+          "Poder não existe sem classe",
+          "Classe é política"
+        ],
+        answer: 1,
+        justification:
+          "Classe deriva da situação de mercado (oportunidades econômicas), enquanto poder é a capacidade de realizar a própria vontade. "
+          + "Poder pode advir de recursos diversos (econômicos, organizacionais, simbólicos)."
+      },
+      {
+        question: "Qual a contribuição duradoura de Weber para as ciências sociais?",
+        options: [
+          "Criar o positivismo lógico",
+          "Ferramentas conceituais para analisar poder, dominação e transformações sociais",
+          "Focar apenas na economia",
+          "Desenvolver o funcionalismo",
+          "Negar a importância da cultura"
+        ],
+        answer: 1,
+        justification:
+          "Weber consolidou a sociologia compreensiva, articulou tipos de dominação, desenvolveu o conceito de racionalização e a tipologia de ações. "
+          + "Seu legado sustenta análises de instituições, mercados e cultura até hoje."
+      },
+      {
+        question: "O que Weber quis dizer com 'desencantamento do mundo'?",
+        options: [
+          "O aumento da magia e da religião",
+          "A perda de valores e mistério devido à racionalização",
+          "Aumento das tradições",
+          "O crescimento do misticismo",
+          "A simplificação da burocracia"
+        ],
+        answer: 1,
+        justification:
+          "‘Desencantamento’ descreve a substituição de explicações mágicas por causalidade racional e técnica. "
+          + "Não elimina a religião, mas reduz sua centralidade como princípio organizador da vida social."
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let history = []; // guarda (nº, correto?, justificativa)
+
+    function startQuiz(){
+      document.getElementById('intro').classList.add('hidden');
+      document.getElementById('quiz').classList.remove('hidden');
+      currentQuestion = 0; score = 0; history = [];
+      showQuestion();
+    }
+
+    function showQuestion(){
+      const q = questions[currentQuestion];
+      document.getElementById('progress').innerText =
+        `Pergunta ${currentQuestion+1} de ${questions.length}`;
+      document.getElementById('question').innerText = q.question;
+
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+      q.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.innerText = opt;
+        btn.onclick = () => selectAnswer(i);
+        optionsDiv.appendChild(btn);
+      });
+
+      document.getElementById('feedback').innerHTML = '';
+      document.getElementById('nextBtn').classList.add('hidden');
+      document.getElementById('restartMid').classList.remove('hidden');
+    }
+
+    function selectAnswer(choice){
+      const q = questions[currentQuestion];
+      const isCorrect = (choice === q.answer);
+      if(isCorrect) score++;
+
+      // Mostrar explicação SEMPRE, com status
+      const status = isCorrect ? `<span class="ok">Correta!</span>` : `<span class="err">Errada.</span>`;
+      document.getElementById('feedback').innerHTML =
+        `${status} ${q.justification}`;
+
+      history.push({
+        num: currentQuestion+1,
+        ok: isCorrect,
+        text: q.justification
+      });
+
+      // Desabilitar botões
+      document.querySelectorAll('#options button').forEach((b, idx) => {
+        b.disabled = true;
+        if(idx === q.answer) b.style.outline = '2px solid var(--ok)';
+        if(idx === choice && !isCorrect) b.style.outline = '2px solid var(--err)';
+      });
+
+      document.getElementById('nextBtn').classList.remove('hidden');
+    }
+
+    function nextQuestion(){
+      currentQuestion++;
+      if(currentQuestion < questions.length) showQuestion();
+      else endQuiz();
+      // rolar até o topo do card para manter a UX
+      document.getElementById('quiz-card').scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    function endQuiz(){
+      document.getElementById('quiz').classList.add('hidden');
+      document.getElementById('result').classList.remove('hidden');
+      document.getElementById('score').innerText =
+        `Você fez ${score} de ${questions.length} pontos.`;
+
+      const listHTML = history.map(item =>
+        `<p><strong>Pergunta ${item.num} — ${item.ok ? '<span class="ok">Acertou</span>' : '<span class="err">Errou</span>'}:</strong> ${item.text}</p>`
+      ).join('');
+      document.getElementById('justifications').innerHTML = listHTML;
+    }
+
+    function restartQuiz(){
+      currentQuestion = 0; score = 0; history = [];
+      document.getElementById('result').classList.add('hidden');
+      document.getElementById('intro').classList.remove('hidden');
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+  </script>
+</body>
+</html>
