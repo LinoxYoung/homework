@@ -1,295 +1,47 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Quiz sobre Max Weber</title>
-  <style>
-    :root{
-      --bg:#f5f7fa;
-      --fg:#333;
-      --card:#ffffff;
-      --muted:#2c3e50;
-      --btn:#2f6bb2;
-      --btn-hover:#3d82d4;
-      --opt:#ecf0f1;
-      --opt-hover:#d6eaf8;
-      --ok:#1b9e3e;
-      --err:#c0392b;
-      --shadow: 0 6px 16px rgba(0,0,0,.08);
-      --radius:14px;
+<meta charset="UTF-8">
+<title>Hub Preto</title>
+<style>
+    body {
+        background: #000;
+        color: #fff;
+        font-family: Arial;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
     }
-    .dark-mode{
-      --bg:#121417;
-      --fg:#e6e6e6;
-      --card:#1b2026;
-      --muted:#e6e6e6;
-      --btn:#3b82f6;
-      --btn-hover:#5aa0ff;
-      --opt:#24303b;
-      --opt-hover:#2e3a46;
-      --ok:#2ecc71;
-      --err:#e74c3c;
-      --shadow: 0 8px 20px rgba(0,0,0,.35);
+    .container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 200px;
     }
-
-    *{box-sizing:border-box}
-    body{
-      margin:0; padding:24px;
-      background:var(--bg); color:var(--fg);
-      font-family: "Segoe UI", Roboto, Arial, sans-serif;
-      transition: background .25s, color .25s;
+    a button {
+        width: 100%;
+        padding: 15px;
+        background: #111;
+        border: 2px solid #444;
+        color: #fff;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 6px;
     }
-    .container{
-      max-width:900px; margin:0 auto;
-      background:var(--card); padding:28px;
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
+    a button:hover {
+        background: #222;
     }
-    h1{ margin:8px 0 16px; color:var(--muted); font-size:28px; }
-    h2{ margin:16px 0 10px; color:var(--muted); font-size:22px; }
-
-    .topbar{
-      display:flex; gap:12px; justify-content:space-between; align-items:center; margin-bottom:16px;
-    }
-    .btn{
-      border:none; cursor:pointer; border-radius:10px; padding:10px 16px;
-      background:var(--btn); color:#fff; font-weight:600; transition:transform .05s, background .2s;
-    }
-    .btn:hover{ background:var(--btn-hover) }
-    .btn:active{ transform: translateY(1px) }
-    .btn.secondary{ background:transparent; color:var(--muted); border:1px solid rgba(0,0,0,.08) }
-    .dark-mode .btn.secondary{ border-color: rgba(255,255,255,.15) }
-
-    .lead{ opacity:.9; line-height:1.6 }
-
-    #quiz-card{
-      border:1px solid rgba(0,0,0,.06);
-      border-radius:var(--radius);
-      padding:18px;
-      background:var(--card);
-    }
-    .dark-mode #quiz-card{ border-color: rgba(255,255,255,.08) }
-
-    #progress{ font-size:14px; opacity:.8; margin-bottom:6px }
-    #question{ margin:6px 0 14px; }
-
-    #options{ display:grid; gap:10px }
-    #options button{
-      width:100%; text-align:left; background:var(--opt); color:var(--fg);
-      padding:12px 14px; border:none; border-radius:10px; cursor:pointer;
-      transition: background .2s, opacity .2s;
-    }
-    #options button:hover{ background:var(--opt-hover) }
-    #options button:disabled{ opacity:.65; cursor:not-allowed }
-
-    #feedback{ margin-top:12px; font-weight:600 }
-    .ok{ color:var(--ok) }
-    .err{ color:var(--err) }
-
-    .hidden{ display:none }
-
-    #result .badge{
-      display:inline-block; padding:6px 10px; border-radius:999px;
-      background:var(--opt); margin:6px 0 12px;
-    }
-  </style>
+</style>
 </head>
 <body>
 
-    <div class="topbar">
-    <div style="display:flex; gap:10px">>
-        <button class="btn" onclick="window.open('MAX-WEBER.pdf', '_blank')">SLIDE sobre Max Weber</button>
-    </div>
-    </div>
+<div class="container">
+    <a href="ARQUIVO1.pdf" download><button>slide de Educação Física</button></a>
+    <a href="ARQUIVO2.pdf" download><button>Arquivo 2</button></a>
+    <a href="ARQUIVO3.pdf" download><button>Arquivo 3</button></a>
+</div>
 
-  <div class="container">
-    <div class="topbar">
-      <h1>Quiz sobre Max Weber</h1>
-      <button id="themeToggle" class="btn secondary" aria-pressed="false">Tema: Claro</button>
-    </div>
-
-    <div id="intro">
-      <h2>Quem foi Max Weber?</h2>
-      <p class="lead">
-        <strong>Max Weber</strong> (1864–1920) é um dos fundadores da sociologia moderna.
-        Seus conceitos de ação social, racionalização, tipo ideal, estratificação (classe, status e poder) e burocracia
-        são chaves para entender o mundo contemporâneo.
-      </p>
-      <button class="btn" onclick="startQuiz()">Iniciar Quiz</button>
-    </div>
-
-    <div id="quiz" class="hidden">
-      <div id="quiz-card">
-        <div id="progress"></div>
-        <h2 id="question"></h2>
-        <div id="options"></div>
-        <div id="feedback"></div>
-      </div>
-      <div style="display:flex; gap:10px; margin-top:12px">
-        <button id="nextBtn" class="btn hidden" onclick="nextQuestion()">Próxima</button>
-        <button id="restartMid" class="btn secondary hidden" onclick="restartQuiz()">Reiniciar</button>
-      </div>
-    </div>
-
-    <div id="result" class="hidden">
-      <h2>Resultado Final</h2>
-      <div id="score" class="badge"></div>
-      <button class="btn" onclick="restartQuiz()">Reiniciar Quiz</button>
-    </div>
-  </div>
-
-  <script>
-    // ===== Tema escuro =====
-    const themeToggle = document.getElementById('themeToggle');
-    function setThemeButtonLabel(){
-      const dark = document.body.classList.contains('dark-mode');
-      themeToggle.textContent = dark ? 'Tema: Escuro' : 'Tema: Claro';
-      themeToggle.setAttribute('aria-pressed', dark ? 'true' : 'false');
-    }
-    themeToggle.addEventListener('click', () => {
-      document.body.classList.toggle('dark-mode');
-      setThemeButtonLabel();
-    });
-    setThemeButtonLabel();
-
-    // ===== Banco de questões (somente 8) =====
-    const questions = [
-      {
-        question: "Segundo Weber, o que define a 'ação social'?",
-        options: [
-          "Qualquer ação humana, independentemente de sentido",
-          "Ação orientada pelo significado atribuído às ações dos outros",
-          "Um comportamento instintivo",
-          "Uma prática econômica exclusiva",
-          "Apenas ações coletivas"
-        ],
-        answer: 1
-      },
-      {
-        question: "Qual destes NÃO é um tipo de ação social identificado por Weber?",
-        options: [
-          "Racional com relação a fins",
-          "Racional com relação a valores",
-          "Tradicional",
-          "Afetiva",
-          "Mercadológica"
-        ],
-        answer: 4
-      },
-      {
-        question: "Qual é a diferença da estratificação social em Weber e Marx?",
-        options: [
-          "Weber considerava apenas o fator econômico",
-          "Weber incluía classe, status e poder, não apenas economia",
-          "Marx não estudava estratificação",
-          "Weber via apenas diferenças culturais",
-          "Marx priorizava status social"
-        ],
-        answer: 1
-      },
-      {
-        question: "O que significa a 'gaiola de ferro'?",
-        options: [
-          "A opressão religiosa",
-          "Um conceito marxista",
-          "O domínio militar",
-          "O aprisionamento do indivíduo pela racionalização e burocracia",
-          "Um sistema econômico fechado"
-        ],
-        answer: 3
-      },
-      {
-        question: "Qual é a relação entre religião e economia segundo Weber?",
-        options: [
-          "Nenhuma relação significativa",
-          "A religião pode moldar valores que afetam a economia",
-          "A religião sempre impede o capitalismo",
-          "A economia determina totalmente a religião",
-          "São áreas isoladas"
-        ],
-        answer: 1
-      },
-      {
-        question: "Para Weber, o que é poder?",
-        options: [
-          "Apenas influência política",
-          "Capacidade de impor a própria vontade, mesmo contra resistência",
-          "Domínio militar",
-          "Força econômica",
-          "Apenas liderança carismática"
-        ],
-        answer: 1
-      }
-    ];
-
-    let currentQuestion = 0;
-    let score = 0;
-
-    function startQuiz(){
-      document.getElementById('intro').classList.add('hidden');
-      document.getElementById('quiz').classList.remove('hidden');
-      currentQuestion = 0; score = 0;
-      showQuestion();
-    }
-
-    function showQuestion(){
-      const q = questions[currentQuestion];
-      document.getElementById('progress').innerText =
-        `Pergunta ${currentQuestion+1} de ${questions.length}`;
-      document.getElementById('question').innerText = q.question;
-
-      const optionsDiv = document.getElementById('options');
-      optionsDiv.innerHTML = '';
-      q.options.forEach((opt, i) => {
-        const btn = document.createElement('button');
-        btn.innerText = opt;
-        btn.onclick = () => selectAnswer(i);
-        optionsDiv.appendChild(btn);
-      });
-
-      document.getElementById('feedback').innerHTML = '';
-      document.getElementById('nextBtn').classList.add('hidden');
-      document.getElementById('restartMid').classList.remove('hidden');
-    }
-
-    function selectAnswer(choice){
-      const q = questions[currentQuestion];
-      const isCorrect = (choice === q.answer);
-      if(isCorrect) score++;
-
-      const status = isCorrect ? `<span class="ok">Correta!</span>` : `<span class="err">Errada.</span>`;
-      document.getElementById('feedback').innerHTML = status;
-
-      document.querySelectorAll('#options button').forEach((b, idx) => {
-        b.disabled = true;
-        if(idx === q.answer) b.style.outline = '2px solid var(--ok)';
-        if(idx === choice && !isCorrect) b.style.outline = '2px solid var(--err)';
-      });
-
-      document.getElementById('nextBtn').classList.remove('hidden');
-    }
-
-    function nextQuestion(){
-      currentQuestion++;
-      if(currentQuestion < questions.length) showQuestion();
-      else endQuiz();
-      document.getElementById('quiz-card').scrollIntoView({behavior:'smooth', block:'start'});
-    }
-
-    function endQuiz(){
-      document.getElementById('quiz').classList.add('hidden');
-      document.getElementById('result').classList.remove('hidden');
-      document.getElementById('score').innerText =
-        `Você fez ${score} de ${questions.length} pontos.`;
-    }
-
-    function restartQuiz(){
-      currentQuestion = 0; score = 0;
-      document.getElementById('result').classList.add('hidden');
-      document.getElementById('intro').classList.remove('hidden');
-      window.scrollTo({top:0, behavior:'smooth'});
-    }
-  </script>
 </body>
 </html>
